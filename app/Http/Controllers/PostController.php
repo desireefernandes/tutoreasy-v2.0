@@ -46,7 +46,7 @@ class PostController extends Controller
             'title' => ['required', 'unique:posts', 'max:255'],
             'body' => ['required'],
             'image' => ['mimes:jpeg,png'],
-            'pdf' => ['mimes:pdf']
+            'pdf' => ['mimes:pdf'],
         ]);
 
         $post = new Post($validatedData);
