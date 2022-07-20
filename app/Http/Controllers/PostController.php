@@ -8,6 +8,7 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class PostController extends Controller
@@ -89,6 +90,16 @@ class PostController extends Controller
         return redirect('posts')->with('success', 'Post suceccessfully created');
     }
 
+    public function like(Request $request, Post $post)
+    {
+        if ($post->user_id = Auth::id()) {
+            $post->users()->attach(Auth::id());
+            return redirect('posts')->with('success', 'Like suceccessfully created');
+        } else {
+            return redirect('posts')->with('error', 'You need is logged in');
+        }
+    }
+
     /**
      * Display the specified resource.
      *
@@ -108,8 +119,16 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-
-        return view('posts.edit', compact('post'));
+        if ($post->user_id === Auth::id()) {
+            return view('posts.edit', compact('post'));
+        } else {
+            return redirect()->route('posts.index')
+                ->with(
+                    'error',
+                    "You can't edit this post because are not author"
+                )
+                ->withInput();
+        }
     }
 
     /**
@@ -122,9 +141,38 @@ class PostController extends Controller
 
     public function update(Request $request, Post $post)
     {
+        $validatedData = $request->validate([
+            'title' => ['required', 'unique:posts', 'max:255'],
+            'body' => ['required'],
+            'image' => ['mimes:jpeg,png'],
+            'pdf' => ['mimes:pdf'],
+        ]);
 
-        $post->update($request->all());
-        return redirect()->route('posts.index')->with('success', 'Post successfully updated!');
+        if ($post->user_id === Auth::id()) {
+            $post->update($request->all());
+
+            if ($request->hasFile('image') and $request->file('image')->isValid()) {
+                $post->image->delete();
+                $extension = $request->image->extension();
+                $image_name = now()->toDateString() . "_" . substr(base64_encode(sha1(mt_rand())), 0, 10);
+
+                $path = $request->image->storeAs('public/posts', $image_name . "." . $extension);
+
+                $image = new Image();
+                $image->path = $path;
+                $image->post_id = $post->id;
+                $image->save();
+            }
+
+            return redirect()->route('posts.index')->with('success', 'Post successfully updated!');
+        } else {
+            return redirect()->route('posts.index')
+                ->with(
+                    'error',
+                    "You can't update this post because are not author"
+                )
+                ->withInput();
+        }
     }
 
     /**
@@ -135,9 +183,22 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        if ($post->user_id === Auth::id()) {
+            $path = $post->image->path;
 
-        $post->delete();
-        return redirect()->route('posts.index')
-            ->with('success', 'Post successfully deleted!');
+            $post->delete();
+
+            Storage::disk('public')->delete($path);
+
+            return redirect()->route('posts.index')
+                ->with('success', 'Post successfully deleted!');
+        } else {
+            return redirect()->route('posts.index')
+                ->with(
+                    'error',
+                    "You can't delete this post because are not author"
+                )
+                ->withInput();
+        }
     }
 }

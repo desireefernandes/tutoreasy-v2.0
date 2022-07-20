@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Models\Post;
 
 class UserController extends Controller
 {
@@ -50,9 +51,10 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show(Post $post)
     {
-        //
+        $post = Post::byUser(Auth::id())->get();
+        return view('users.show', compact('post'));
     }
 
     /**
@@ -63,7 +65,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        //
+        return view('users.edit', compact('user'));
     }
 
     /**
@@ -75,7 +77,8 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //
+        $user->update($request->all());
+        return redirect()->route('users.index')->with('success', 'User successfully updated!');
     }
 
     /**
@@ -84,10 +87,11 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy(Post $post, User $user)
     {
+        $post->delete();
         $user->delete();
-        return redirect()->route('welcome')
+        return redirect()->route('posts.index')
             ->with('success', 'User successfully deleted!');
     }
 }
