@@ -6,6 +6,13 @@
 
 Este site foi idealizado por alunos do 4º período do curso superior de Tecnologia em Sistemas para Internet, do IFPE campus Igarassu, por meio da disciplina de Projeto e Desenvolvimento 3, ministrada pela professora Liliane Alves.
 
+### Ambientação
+
+Primeiro passo: Fazer o download do projeto pelo git, podendo ser pelo comando gitclone ou baixando o arquivo compactado.
+Segundo passo: instalar dependências "node modules", executando o comando "npm install" dentro da pasta react do projeto
+Terceiro passo: instalar o nest na sua máquina com o comando "npm i -g @nestjs/cli" e depois, dentro do repositório nest, instalar o axios com o comando "npm install axios"
+Quarto passo: iniciar o servidor com o comando "npm start" e visualizar o projeto no navegador na porta 3000
+
 ### Equipe
 
 * Desiree Fernandes
