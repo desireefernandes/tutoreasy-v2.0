@@ -12,8 +12,10 @@ export function App() {
     
     <BrowserRouter>
       <Routes>
+        
         <Route path="/SignIn" element={<SignIn />} />
         <Route path="/Register" element={<Register />} />
+
       </Routes>
     </BrowserRouter>
     </div>
